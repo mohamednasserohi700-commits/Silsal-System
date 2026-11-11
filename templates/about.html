@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% set block_icon = 'fas fa-info-circle' %}
+{% block title %}حول النظام{% endblock %}
+{% block page_title %}حول النظام{% endblock %}
+{% block breadcrumb %}حول{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:520px;margin:2rem auto;text-align:center;">
+    <div class="card-body" style="padding:2.5rem 1.75rem;">
+        <div style="font-size:1.35rem;font-weight:800;margin-bottom:1.25rem;color:var(--accent);line-height:1.6;">
+            {{ app_brand_title }}
+        </div>
+        <div style="font-size:0.95rem;line-height:2.1;color:var(--text);">
+            <div>النظام : <strong>{{ settings.get('program_label', 'Silsal POS') }}</strong></div>
+            <div>الإصدار : <strong>7</strong></div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">نظام محاسبة وإدارة أعمال متكامل — مبيعات ومشتريات ومخازن وحسابات وتقارير</div>
+        </div>
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);">
+            <div style="font-weight:800;margin-bottom:10px;color:var(--text);">معلومات النظام</div>
+            <div style="background:var(--bg-secondary);padding:12px;border-radius:6px;margin-bottom:15px;font-size:0.9rem;">
+                <div style="margin-bottom:8px;">
+                    <span style="color:var(--text-muted);">الوقت الحالي:</span>
+                    <strong style="color:var(--accent);">{{ current_time }}</strong>
+                </div>
+                <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">
+                    {{ timezone_name }}
+                </div>
+                <div style="font-size:0.85rem;color:var(--text-muted);">
+                    💡 لتصحيح الفرق الساعي: اذهب إلى الإعدادات الرئيسية واختر التوقيت الصيفي أو الشتوي
+                </div>
+            </div>
+            <div style="font-weight:800;margin-bottom:10px;color:var(--text);">المظهر</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+                <button type="button" class="btn btn-primary btn-sm erp-theme-opt" data-theme-val="silsal7" onclick="erpSetTheme('silsal7')"><i class="fas fa-sun"></i> Silsal 7 فاتح</button>
+                <button type="button" class="btn btn-outline btn-sm erp-theme-opt" data-theme-val="silsal7dark" onclick="erpSetTheme('silsal7dark')"><i class="fas fa-moon"></i> Silsal 7 داكن</button>
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.8;">
+                يمكن أيضاً التبديل بين الفاتح والداكن من زر المظهر في الشريط العلوي — ويُحفظ اختيارك على هذا الجهاز تلقائياً.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

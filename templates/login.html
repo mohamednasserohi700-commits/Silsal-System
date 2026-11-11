@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, viewport-fit=cover">
+    <title>تسجيل الدخول | {{ app_brand_title | default('POS System Pro') }}</title>
+    <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
+    <link rel="icon" type="image/png" href="/static/img/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ════════════════════════════════════════════════════════════
+           صفحة تسجيل الدخول — الطابع الليلي الفاخر (بنفسجي Silsal الليلي)
+           خلفية داكنة دافئة + هالة متدرجة متحركة حول البطاقة
+           + ساعة حية + تنبيه Caps Lock + حقول زجاجية داكنة
+           ════════════════════════════════════════════════════════════ */
+        :root{
+            --silsal:#B98BB0;            /* بنفسجي فاتح للتمييز على الخلفية الداكنة */
+            --silsal-strong:#714B67;     /* البنفسجي الأساسي */
+            --silsal-deep:#4E3450;
+            --silsal-soft:rgba(185,139,176,.16);
+            --gold:#C79A6B;
+            --halo-1:#714B67;
+            --halo-2:#9B6B8F;
+            --halo-3:#C79A6B;
+            --bg:#0F0B18;
+            --surface:#181226;
+            --surface-2:#221A35;
+            --panel-grad:linear-gradient(160deg,#3B2B49 0%,#2A2038 52%,#1B1429 100%);
+            --text:#F1EEF9;
+            --text-sub:#A89FC4;
+            --input-bg:#221A35;
+            --input-border:rgba(255,255,255,.11);
+            --chip-bg:#221A35;
+            --card-shadow:0 34px 90px rgba(0,0,0,.55);
+            --orb-opacity:.30;
+            --grid-opacity:.20;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{min-height:100%}
+        body{
+            font-family:Cairo,sans-serif;
+            background:var(--bg);
+            color:var(--text);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:28px 16px;
+            overflow-x:hidden;
+        }
+        ::selection{background:rgba(155,107,143,.45);color:#fff}
+
+        /* ── خلفية ليلية: هالات بنفسجية + شبكة نقاط + جزيئات عائمة ── */
+        .bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+            background:
+                radial-gradient(ellipse 72% 55% at 85% 6%, rgba(113,75,103,.20) 0%, transparent 62%),
+                radial-gradient(ellipse 60% 50% at 8% 92%, rgba(155,107,143,.15) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 45% at 50% 112%, rgba(199,154,107,.07) 0%, transparent 55%),
+                linear-gradient(180deg,#100B1C 0%,#0D0916 100%);}
+        .bg .dots{position:absolute;inset:0;opacity:var(--grid-opacity);
+            background-image:radial-gradient(rgba(185,139,176,.20) 1.1px, transparent 1.1px);
+            background-size:26px 26px;
+            -webkit-mask-image:radial-gradient(ellipse 65% 60% at 50% 42%, #000 0%, transparent 100%);
+            mask-image:radial-gradient(ellipse 65% 60% at 50% 42%, #000 0%, transparent 100%);}
+        .orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:var(--orb-opacity);
+            animation:orbFloat 12s ease-in-out infinite;}
+        .orb.o1{width:110px;height:110px;top:12%;right:9%;background:radial-gradient(circle at 32% 30%, #8A5F7E, #46304A);animation-delay:0s}
+        .orb.o2{width:56px;height:56px;top:66%;right:16%;background:radial-gradient(circle at 32% 30%, #9A7350, #55391F);animation-delay:-3.2s}
+        .orb.o3{width:74px;height:74px;top:20%;left:10%;background:radial-gradient(circle at 32% 30%, #7C5470, #3C2A42);animation-delay:-5.6s}
+        .orb.o4{width:38px;height:38px;top:74%;left:20%;background:radial-gradient(circle at 32% 30%, #96708C, #4E3450);animation-delay:-8s}
+        @keyframes orbFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-22px) rotate(6deg)}}
+
+        /* ── البطاقة مع الهالة المتدرجة المتحركة (اللمسة المميزة) ── */
+        .stage{position:relative;z-index:1;width:100%;max-width:1120px}
+        .halo{
+            position:relative;
+            border-radius:28px;
+            padding:2px;
+            background:conic-gradient(from var(--halo-angle,0deg),
+                var(--halo-1) 0deg, var(--halo-2) 80deg, var(--halo-3) 160deg,
+                var(--halo-2) 240deg, var(--halo-1) 360deg);
+            animation:haloSpin 14s linear infinite;
+            box-shadow:var(--card-shadow);
+        }
+        @property --halo-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+        @keyframes haloSpin{to{--halo-angle:360deg}}
+        /* بديل للمتصفحات التي لا تدعم @property: دوران طبقة داخلية */
+        .halo::before{content:'';position:absolute;inset:-2px;border-radius:30px;z-index:-1;
+            background:conic-gradient(var(--halo-1),var(--halo-2),var(--halo-3),var(--halo-2),var(--halo-1));
+            opacity:0;}
+
+        .page{
+            position:relative;
+            border-radius:26px;
+            overflow:hidden;
+            background:linear-gradient(180deg,#1A1428 0%,#151021 100%);
+        }
+
+        /* ── الشريط العلوي ── */
+        .top-bar{
+            display:flex;align-items:center;justify-content:space-between;gap:14px;
+            padding:16px 26px;
+            border-bottom:1px solid rgba(255,255,255,.07);
+            flex-wrap:wrap;
+        }
+        .brand{display:flex;align-items:center;gap:12px;min-width:0}
+        .brand-badge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0}
+        .brand-badge svg,.brand-badge img{display:block;filter:drop-shadow(0 4px 14px rgba(155,107,143,.45))}
+        .brand-badge .erp-mark{
+            font-family:Cairo,sans-serif;font-weight:900;font-size:14px;letter-spacing:.5px;
+            background:linear-gradient(90deg,#D9BFE0,#C79A6B);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+        }
+        .brand-text{text-align:right;min-width:0}
+        .brand-title{font-size:19px;font-weight:800;white-space:nowrap}
+        .brand-sub{color:var(--text-sub);font-size:12.5px;margin-top:3px;line-height:1.2}
+        .top-nav{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+        .clock-chip{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:9px 14px;border-radius:999px;
+            border:1px solid rgba(255,255,255,.10);
+            background:rgba(255,255,255,.04);
+            color:var(--text-sub);font-size:12.5px;font-weight:700;white-space:nowrap;
+            font-variant-numeric:tabular-nums;
+        }
+        .clock-chip i{color:var(--gold);font-size:12px}
+        .ver-chip{
+            display:inline-flex;align-items:center;
+            padding:7px 12px;border-radius:999px;
+            border:1px solid rgba(185,139,176,.32);
+            background:rgba(185,139,176,.10);
+            color:#D9BFE0;font-size:11.5px;font-weight:800;letter-spacing:.4px;white-space:nowrap;
+        }
+        /* ── تقسيم البطاقة ── */
+        .main{display:grid;grid-template-columns:1fr 1.08fr}
+        .form-side{
+            padding:44px 40px;
+            display:flex;flex-direction:column;justify-content:center;gap:16px;
+            position:relative;
+        }
+
+        /* مدخل متدرج */
+        .stagger{opacity:0;transform:translateY(16px);animation:enter .65s ease-out forwards}
+        .d1{animation-delay:.06s}.d2{animation-delay:.14s}.d3{animation-delay:.22s}.d4{animation-delay:.30s}
+        @keyframes enter{to{opacity:1;transform:none}}
+
+        /* ── جهة النموذج ── */
+        .form-headline{
+            font-size:30px;font-weight:900;text-align:right;
+            background:linear-gradient(90deg,#E3CCE8,#C79AC9 55%,#E3C393);
+            -webkit-background-clip:text;background-clip:text;color:transparent;
+        }
+        .form-sub{font-size:14px;color:var(--text-sub);text-align:right;margin-top:-6px}
+        .badge-pills{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+        .badge-pill{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:8px 15px;border-radius:999px;
+            border:1px solid rgba(255,255,255,.12);
+            background:var(--chip-bg);
+            font-size:13px;font-weight:700;color:var(--text);
+            transition:transform .2s ease,border-color .2s ease;
+        }
+        .badge-pill:hover{transform:translateY(-1px);border-color:var(--silsal)}
+        .badge-pill i{font-size:12.5px;color:var(--silsal)}
+        .badge-pill.b2 i{color:#C79AC9}
+        .badge-pill.b3 i{color:var(--gold)}
+
+        /* التنبيهات — مظللة لتناسب الخلفية الليلية */
+        .alert{
+            display:flex;gap:10px;align-items:flex-start;
+            padding:12px 14px;border-radius:14px;
+            border:1px solid rgba(255,113,97,.32);
+            background:rgba(255,113,97,.10);
+            color:#FFB0A6;line-height:1.55;font-size:13px;font-weight:600;
+            animation:fadeIn .35s ease both;
+        }
+        .alert.success{border-color:rgba(64,196,146,.32);background:rgba(64,196,146,.10);color:#8FE3C4}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+        /* الحقول — زجاجية داكنة بروح أودو */
+        .field{margin-bottom:14px}
+        .field label{
+            display:flex;align-items:center;gap:8px;
+            font-size:13px;font-weight:800;color:var(--text);
+            margin-bottom:7px;
+        }
+        .field label i{color:var(--silsal);font-size:12px}
+        .input-wrap{position:relative}
+        .input-wrap > i.icon{
+            position:absolute;right:14px;top:50%;transform:translateY(-50%);
+            color:var(--text-sub);font-size:14px;pointer-events:none;transition:color .2s;
+        }
+        .input{
+            width:100%;
+            padding:13px 42px 13px 16px;
+            font-family:inherit;font-size:14.5px;font-weight:600;
+            color:var(--text);
+            background:var(--input-bg);
+            border:1.5px solid var(--input-border);
+            border-radius:12px;
+            outline:none;
+            box-shadow:inset 0 1px 3px rgba(0,0,0,.25);
+            transition:border-color .2s,box-shadow .2s,background .2s;
+        }
+        .input::placeholder{color:#7D7499;font-weight:500}
+        .input:hover{border-color:var(--silsal)}
+        .input:focus{border-color:var(--silsal);box-shadow:0 0 0 4px var(--silsal-soft), inset 0 1px 3px rgba(0,0,0,.25)}
+        .input-wrap:focus-within > i.icon{color:var(--silsal)}
+        .input:-webkit-autofill{
+            -webkit-text-fill-color:var(--text);
+            -webkit-box-shadow:0 0 0 1000px #241C38 inset;
+            transition:background-color 99999s ease-in-out 0s;
+        }
+        .action{
+            position:absolute;left:10px;top:50%;transform:translateY(-50%);
+            width:34px;height:34px;border-radius:9px;
+            border:none;background:rgba(255,255,255,.07);color:var(--text-sub);
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:color .2s,background .2s,transform .2s;
+        }
+        .action:hover{color:var(--silsal);background:rgba(185,139,176,.14);transform:translateY(-50%) scale(1.06)}
+
+        /* تنبيه Caps Lock */
+        .caps-warn{
+            display:none;align-items:center;gap:8px;
+            margin-top:8px;padding:7px 11px;border-radius:10px;
+            border:1px solid rgba(199,154,107,.30);
+            background:rgba(199,154,107,.10);
+            color:#E8C08A;font-size:12px;font-weight:700;
+            animation:fadeIn .25s ease both;
+        }
+        .caps-warn i{font-size:11px}
+
+        .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 16px}
+        .remember{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;user-select:none}
+        .remember input{width:17px;height:17px;accent-color:#8A5F7E;cursor:pointer}
+        .link{font-size:13px;font-weight:700;color:var(--silsal);text-decoration:none;cursor:pointer}
+        .link:hover{text-decoration:underline}
+        :is(.link,.action,.modal-x,.chip):focus-visible{outline:2px solid var(--silsal);outline-offset:2px;border-radius:10px}
+
+        /* زر الدخول — لمعة عابرة عند التحويم */
+        .btn{
+            position:relative;overflow:hidden;
+            width:100%;
+            padding:14px 18px;border:none;border-radius:13px;
+            font-family:inherit;font-size:15.5px;font-weight:800;color:#fff;
+            background:linear-gradient(135deg,#9A6C8E,#714B67 48%,#543A50);
+            cursor:pointer;
+            display:flex;align-items:center;justify-content:center;gap:10px;
+            box-shadow:0 14px 34px rgba(113,75,103,.48);
+            transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+        }
+        .btn::after{
+            content:'';position:absolute;top:0;bottom:0;width:46%;
+            right:-60%;transform:skewX(-18deg);
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+            transition:right .55s ease;
+        }
+        .btn:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(113,75,103,.58);filter:brightness(1.06)}
+        .btn:hover::after{right:120%}
+        .btn:active{transform:translateY(0) scale(.98)}
+        .btn:disabled{opacity:.75;cursor:not-allowed;transform:none}
+        .spinner{
+            width:17px;height:17px;border-radius:50%;
+            border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;
+            animation:spin .7s linear infinite;display:inline-block;
+        }
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        .form-foot{font-size:11.5px;color:var(--text-sub);text-align:center;line-height:1.7}
+
+        /* ── جهة الهوية الليلية ── */
+        .hero-side{
+            position:relative;
+            padding:36px 34px;
+            background:var(--panel-grad);
+            color:#fff;
+            display:flex;flex-direction:column;gap:13px;
+            overflow:hidden;
+        }
+        /* توهجات ناعمة أعلى وأسفل الجهة البنفسجية */
+        .hero-side::before{
+            content:'';position:absolute;inset:0;pointer-events:none;opacity:.6;
+            background:
+                radial-gradient(ellipse 60% 42% at 85% 0%, rgba(199,154,107,.10) 0%, transparent 60%),
+                radial-gradient(ellipse 55% 40% at 10% 100%, rgba(0,0,0,.32) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 35% at 15% 8%, rgba(185,139,176,.14) 0%, transparent 60%);
+        }
+        .hero-float-logo{
+            position:absolute;top:24px;left:26px;width:198px;height:auto;object-fit:contain;
+            filter:drop-shadow(0 16px 30px rgba(0,0,0,.5));
+            animation:levitate 5.5s ease-in-out infinite;
+            opacity:.95;
+        }
+        @keyframes levitate{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+        .hero-greeting{font-size:15px;font-weight:700;color:rgba(255,255,255,.80);display:flex;align-items:center;gap:8px;justify-content:flex-start;text-align:right;padding-left:210px}
+        .hero-headline{font-size:29px;font-weight:900;line-height:1.35;text-align:right;max-width:75%}
+        .hero-headline .erp-word{
+            background:linear-gradient(90deg,#F2D7C0,#E9C4DD);
+            -webkit-background-clip:text;background-clip:text;color:transparent;padding:0 3px;
+        }
+        .hero-desc{font-size:13.5px;color:rgba(255,255,255,.68);line-height:1.85;text-align:right;max-width:82%}
+        .hero-pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+        .hero-pill{
+            display:inline-flex;align-items:center;gap:8px;
+            padding:9px 15px;border-radius:999px;
+            border:1px solid rgba(255,255,255,.18);
+            background:rgba(255,255,255,.07);
+            backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+            font-size:12.5px;font-weight:700;color:#fff;
+            transition:transform .2s ease,border-color .2s ease,background .2s ease;
+        }
+        .hero-pill:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.13)}
+        .hero-pill i{font-size:13px}
+        .hero-pill.hr i{color:#F2C9A8}
+        .hero-pill.mfg i{color:#E9C4DD}
+        .hero-pill.wh i{color:#C7B9E9}
+        .hero-pill.acc i{color:#A8D8C8}
+
+        .hero-bottom{margin-top:auto;display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+        .feature-list{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+        .feat{
+            display:flex;flex-direction:column;gap:8px;
+            padding:13px 14px;border-radius:15px;
+            border:1px solid rgba(255,255,255,.13);
+            background:rgba(255,255,255,.06);
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+            transition:transform .2s ease,border-color .2s ease,background .2s ease;
+        }
+        .feat:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.32);background:rgba(255,255,255,.11)}
+        .feat-icon{
+            width:34px;height:34px;border-radius:10px;
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;font-size:14px;
+            background:rgba(255,255,255,.13);
+            box-shadow:0 8px 20px rgba(0,0,0,.30);
+        }
+        .feat .feat-text b{display:block;font-size:13px;font-weight:800}
+        .feat .feat-text span{display:block;font-size:11px;color:rgba(255,255,255,.58);margin-top:3px;line-height:1.55}
+
+        /* ── التذييل ── */
+        .footer{
+            display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
+            padding:14px 20px;
+            border-top:1px solid rgba(255,255,255,.07);
+            font-size:12px;color:var(--text-sub);
+        }
+        .footer strong{color:var(--text)}
+        .fdiv{width:1px;height:14px;background:rgba(255,255,255,.16)}
+
+        /* ── النوافذ المنبثقة ── */
+        .sr-only{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+        #forgotToggle:checked ~ #forgotModal{display:flex}
+
+        .modal{
+            display:none;position:fixed;inset:0;z-index:50;
+            align-items:center;justify-content:center;padding:16px;
+            background:rgba(8,5,14,.66);
+            backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+        }
+        .modal.open{display:flex}
+        .modal-card{
+            width:min(520px,96vw);border-radius:18px;
+            border:1px solid rgba(255,255,255,.12);
+            background:var(--surface);
+            box-shadow:0 24px 80px rgba(0,0,0,.55);
+            padding:18px 16px;
+        }
+        .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+        .modal-title{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;color:var(--text)}
+        .modal-x{
+            width:38px;height:38px;border-radius:12px;
+            border:1px solid rgba(255,255,255,.12);
+            background:rgba(255,255,255,.05);color:var(--text);
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:transform .2s ease,border-color .2s ease;
+        }
+        .modal-x:hover{transform:translateY(-1px);border-color:var(--silsal);color:var(--silsal)}
+        .modal-body{color:var(--text-sub);font-size:13.5px;line-height:1.8}
+        .modal-body b{color:var(--text)}
+        .modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+        .chip{
+            display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;
+            border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);
+            text-decoration:none;color:var(--text);font-weight:700;font-size:13px;
+            transition:transform .2s ease,border-color .2s ease;cursor:pointer;font-family:inherit;
+        }
+        .chip:hover{transform:translateY(-1px);border-color:var(--silsal)}
+        .chip.wa i{color:#25d366}
+        .chip.fb i{color:#60a5fa}
+
+        /* ── الاستجابة ── */
+        @media (max-width: 940px){
+            .main{grid-template-columns:1fr}
+            .hero-side{order:-1;padding:30px 26px}
+            .hero-headline,.hero-desc{max-width:100%}
+            .hero-float-logo{width:150px;height:auto;top:20px;left:18px}
+            .form-side{padding:30px 24px}
+            .feature-list{grid-template-columns:1fr 1fr}
+        }
+        @media (max-width: 760px){
+            .clock-chip{display:none}
+        }
+        @media (max-width: 560px){
+            body{padding:14px 10px}
+            .top-bar{padding:14px 16px}
+            .form-side{padding:26px 18px}
+            .feature-list{grid-template-columns:1fr}
+            .hero-headline{font-size:24px}
+            .form-headline{font-size:25px}
+        }
+        @media (prefers-reduced-motion: reduce){
+            *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+            .stagger{opacity:1;transform:none}
+        }
+    </style>
+    <script>
+    /* وضع الديسك توب (نافذة سلسل المستقلة): تعطيل أدوات المطور/Inspect والقائمة اليمنى
+       يُفعَّل فقط داخل نافذة البرنامج (User-Agent = SilsalDesktop) — المتصفحات العادية تبقى طبيعية */
+    (function(){
+        if(navigator.userAgent.indexOf('SilsalDesktop') === -1) return;
+        function arm(){
+            document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, true);
+            document.addEventListener('keydown', function(e){
+                var k = (e.key || '').toLowerCase();
+                if(k === 'f12'){ e.preventDefault(); e.stopPropagation(); return false; }
+                if((e.ctrlKey || e.metaKey) && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')){
+                    e.preventDefault(); e.stopPropagation(); return false;
+                }
+                if((e.ctrlKey || e.metaKey) && k === 'u'){ e.preventDefault(); e.stopPropagation(); return false; }
+            }, true);
+        }
+        if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', arm); } else { arm(); }
+    })();
+    </script>
+</head>
+<body>
+    <div class="bg" aria-hidden="true">
+        <div class="dots"></div>
+        <span class="orb o1"></span><span class="orb o2"></span>
+        <span class="orb o3"></span><span class="orb o4"></span>
+    </div>
+
+    <div class="stage">
+        <div class="halo">
+            <div class="page">
+                <div class="top-bar">
+                    <div class="brand">
+                        <div class="brand-badge" aria-hidden="true">
+                            <img src="/static/img/logo-silsal-mark.svg" alt="" style="width:44px;height:44px;display:block;">
+                            <div class="erp-mark">Silsal POS</div>
+                        </div>
+                        <div class="brand-text">
+                            <div class="brand-title">{{ app_brand_title | default('Pos System Pro') }}</div>
+                            <div class="brand-sub">الواجهة الأفضل لأعمالك</div>
+                        </div>
+                    </div>
+                    <nav class="top-nav" id="topNav">
+                        <span class="clock-chip" aria-hidden="true"><i class="far fa-clock"></i><span id="clockText">—</span></span>
+                        <span class="ver-chip">الإصدار {{ app_version | default('7.1.4') }}</span>
+                    </nav>
+                </div>
+
+                <div class="main">
+                    <div class="form-side" id="loginPanel">
+                        <div class="stagger d1">
+                            <div class="form-headline">Silsal POS</div>
+                            <div class="form-sub">نظام إدارة الأعمال المتكامل</div>
+                            <div class="badge-pills">
+                                <span class="badge-pill"><i class="fas fa-cloud"></i> قوي</span>
+                                <span class="badge-pill b2"><i class="fas fa-shield-halved"></i> آمن</span>
+                                <span class="badge-pill b3"><i class="fas fa-bolt"></i> سريع</span>
+                            </div>
+                        </div>
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% for category, message in messages %}
+                            <div class="alert {{ 'success' if category=='success' else '' }} stagger d2" role="alert" aria-live="polite">
+                                <i class="fas fa-{{ 'circle-check' if category=='success' else 'triangle-exclamation' }}"></i>
+                                <div>{{ message }}</div>
+                            </div>
+                            {% endfor %}
+                        {% endwith %}
+
+                        <div class="stagger d3">
+                            <form method="POST" id="loginForm" novalidate>
+                                <div class="field">
+                                    <label for="username">اسم المستخدم <i class="fas fa-user"></i></label>
+                                    <div class="input-wrap">
+                                        <i class="fas fa-user icon"></i>
+                                        <input id="username" type="text" name="username" class="input" placeholder="أدخل اسم المستخدم" autocomplete="username" required autofocus>
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <label for="password">كلمة المرور <i class="fas fa-lock"></i></label>
+                                    <div class="input-wrap">
+                                        <i class="fas fa-lock icon"></i>
+                                        <input id="password" type="password" name="password" class="input" placeholder="أدخل كلمة المرور" autocomplete="current-password" required>
+                                        <button class="action" type="button" id="togglePass" aria-label="إظهار كلمة المرور" title="إظهار/إخفاء">
+                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <div class="caps-warn" id="capsWarn" role="status">
+                                        <i class="fas fa-triangle-exclamation"></i>
+                                        تنبيه: مفتاح Caps Lock مُفعّل
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <label class="remember" for="remember">
+                                        <input type="checkbox" id="remember" name="remember" checked>
+                                        تذكرني
+                                    </label>
+                                    <label class="link" for="forgotToggle" style="cursor:pointer;user-select:none;">
+                                        هل نسيت كلمة المرور؟
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn" id="submitBtn">
+                                    <i class="fas fa-arrow-right-to-bracket"></i>
+                                    <span id="submitText">دخول</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="form-foot stagger d4">
+                            نظام محاسبة وإدارة متكامل — مبيعات، مشتريات، مخازن، عملاء وموردين وتقارير لحظية.
+                        </div>
+                    </div>
+
+                    <div class="hero-side">
+                        <img class="hero-float-logo" src="/static/img/logo-silsal-full-white.svg" alt="Silsal POS" loading="lazy">
+                        <div class="hero-greeting stagger d1">مرحباً بعودتك <span>👋</span></div>
+                        <div class="hero-headline stagger d1">سيستم <span class="erp-word">ادارة المبيعات والمخازن</span></div>
+                        <div class="hero-desc stagger d2">منصة واحدة لإدارة أعمالك بسهولة .. من الحسابات إلى الفواتير والمخازن والتقارير</div>
+
+                        <div class="hero-pills stagger d2">
+                            <span class="hero-pill hr"><i class="fas fa-users"></i> إدارة مؤسستك بالكامل</span>
+                            <span class="hero-pill mfg"><i class="fas fa-industry"></i> تصنيع وإنتاج</span>
+                            <span class="hero-pill wh"><i class="fas fa-cube"></i> مخازن</span>
+                            <span class="hero-pill acc"><i class="fas fa-calculator"></i> حسابات متكاملة</span>
+                        </div>
+
+                        <div class="hero-bottom stagger d3">
+                            <div class="feature-list">
+                                <div class="feat">
+                                    <div class="feat-icon"><i class="fas fa-layer-group"></i></div>
+                                    <div class="feat-text">
+                                        <b>إدارة متكاملة</b>
+                                        <span>سجلاتك مترابطة .. تقاريرك في مكان واحد</span>
+                                    </div>
+                                </div>
+                                <div class="feat">
+                                    <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                                    <div class="feat-text">
+                                        <b>أمان وموثوقية</b>
+                                        <span>بياناتك محمية ومتاحة لحظتها</span>
+                                    </div>
+                                </div>
+                                <div class="feat">
+                                    <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                                    <div class="feat-text">
+                                        <b>أداء أسرع</b>
+                                        <span>واجهة بسيطة وتجربة سلسة</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <span><i class="fas fa-cube"></i> <strong>Silsal POS</strong> — الإصدار {{ app_version | default('7.1.4') }}</span>
+                    <span class="fdiv"></span>
+                    <span><i class="fas fa-shield-halved"></i> نظام محاسبة وإدارة متكامل © 2026</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input class="sr-only" type="checkbox" id="forgotToggle" />
+    <div class="modal" id="forgotModal" role="dialog" aria-modal="true" aria-label="نسيت كلمة المرور">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div class="modal-title"><i class="fas fa-key" style="color:var(--silsal)"></i> نسيت كلمة المرور</div>
+                <label class="modal-x" for="forgotToggle" role="button" tabindex="0" aria-label="إغلاق" style="display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-times"></i>
+                </label>
+            </div>
+            <div class="modal-body">
+                لأسباب أمنية، يتم إعادة تعيين كلمة المرور عبر مدير النظام في شركتك.
+                تواصل مع مدير النظام (الأدمن) وسيقوم بإعادة تعيينها لك من صفحة المستخدمين خلال دقائق.
+                <div class="modal-actions">
+                    <label class="chip" for="forgotToggle" style="justify-content:center;">
+                        <i class="fas fa-check"></i> فهمت
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ── ساعة حية مع التاريخ الميلادي بالعربية ── */
+        (function(){
+            var el = document.getElementById('clockText');
+            if(!el) return;
+            function pad(n){ return (n < 10 ? '0' : '') + n; }
+            function tick(){
+                try{
+                    var d = new Date();
+                    var date = d.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'long'});
+                    var h = d.getHours(), suffix = h < 12 ? 'ص' : 'م';
+                    h = h % 12; if(h === 0) h = 12;
+                    el.textContent = date + ' — ' + pad(h) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ' ' + suffix;
+                }catch(e){}
+            }
+            tick();
+            setInterval(tick, 1000);
+        })();
+
+        /* ── تنبيه عند تشغيل Caps Lock في حقل كلمة المرور ── */
+        (function(){
+            var inp = document.getElementById('password');
+            var warn = document.getElementById('capsWarn');
+            if(!inp || !warn) return;
+            function upd(e){
+                var on = false;
+                try{ on = !!(e && e.getModifierState && e.getModifierState('CapsLock')); }catch(err){}
+                warn.style.display = on ? 'flex' : 'none';
+            }
+            inp.addEventListener('keydown', upd);
+            inp.addEventListener('keyup', upd);
+            inp.addEventListener('blur', function(){ warn.style.display = 'none'; });
+        })();
+
+        document.addEventListener('keydown', function(e){
+            if(e.key !== 'Escape') return;
+            var forgotToggle = document.getElementById('forgotToggle');
+            if(forgotToggle) forgotToggle.checked = false;
+        });
+
+        (function(){
+            var btn = document.getElementById('togglePass');
+            var inp = document.getElementById('password');
+            if(btn && inp){
+                btn.addEventListener('click', function(){
+                    var isPwd = inp.getAttribute('type') === 'password';
+                    inp.setAttribute('type', isPwd ? 'text' : 'password');
+                    btn.setAttribute('aria-label', isPwd ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+                    var icon = btn.querySelector('i');
+                    if(icon){
+                        icon.classList.toggle('fa-eye', !isPwd);
+                        icon.classList.toggle('fa-eye-slash', isPwd);
+                    }
+                });
+            }
+        })();
+
+        (function(){
+            var form = document.getElementById('loginForm');
+            var btn  = document.getElementById('submitBtn');
+            var text = document.getElementById('submitText');
+            if(!form || !btn) return;
+            form.addEventListener('submit', function(){
+                var u = (document.getElementById('username').value || '').trim();
+                var p = (document.getElementById('password').value || '').trim();
+                if(!u || !p) return;
+                btn.disabled = true;
+                var sp = document.createElement('span');
+                sp.className = 'spinner';
+                btn.insertBefore(sp, btn.firstChild);
+                if(text) text.textContent = 'جاري التحميل...';
+            });
+        })();
+
+        (function(){
+            function readCookie(name){
+                var m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[.$?*|{}()[\]\/+^]/g, '\\$&') + '=([^;]*)'));
+                return m ? decodeURIComponent(m[1]) : '';
+            }
+            function makeId(){
+                try{
+                    if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+                }catch(e){}
+                return 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+            }
+            try{
+                var did = (localStorage.getItem('erp_device_id') || '').trim();
+                if (!did) did = (readCookie('erp_device_id') || '').trim();
+                if (!did) {
+                    did = makeId();
+                    localStorage.setItem('erp_device_id', did);
+                } else {
+                    localStorage.setItem('erp_device_id', did);
+                }
+                document.cookie = 'erp_device_id=' + encodeURIComponent(did) + '; path=/; max-age=31536000; samesite=lax';
+            }catch(e){
+                try{
+                    var fallback = makeId();
+                    document.cookie = 'erp_device_id=' + encodeURIComponent(fallback) + '; path=/; max-age=31536000; samesite=lax';
+                }catch(err){}
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% set block_icon = 'fas fa-cloud-arrow-down' %}
+{% block title %}التحديثات{% endblock %}
+{% block page_title %}التحديثات{% endblock %}
+{% block breadcrumb %}الإدارة والإعدادات / التحديثات{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .upd-wrap{max-width:860px}
+    .upd-hero{background:linear-gradient(135deg,var(--accent),var(--accent-hover));border:none;color:#fff;border-radius:var(--radius);
+        padding:18px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;box-shadow:var(--glow)}
+    .upd-hero img{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.14);padding:6px}
+    .upd-ver-pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:7px 16px;border-radius:20px;
+        font-size:13px;font-weight:800;white-space:nowrap}
+    .upd-progress{height:12px;border-radius:10px;background:var(--accent-soft);overflow:hidden;margin:10px 0 4px}
+    .upd-progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-hover));
+        border-radius:10px;transition:width .6s ease}
+    .upd-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .upd-note{background:var(--accent-soft);border:1px dashed var(--border-strong,var(--border));border-radius:10px;
+        padding:10px 14px;font-size:12px;color:var(--text-muted);line-height:1.9;margin-top:12px}
+    .upd-note code{background:rgba(113,75,103,.10);padding:1px 7px;border-radius:6px;font-size:11px;direction:ltr;display:inline-block}
+    /* ═══ شاشة انتظار تثبيت التحديث ═══ */
+    #uinstOverlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;
+        padding:16px;background:rgba(24,18,30,.62);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+    #uinstOverlay.show{display:flex}
+    .uinst-card{background:var(--card,#fff);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.4);
+        width:min(430px,100%);padding:28px 26px 20px;text-align:center;animation:uinstIn .35s ease}
+    @keyframes uinstIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+    .uinst-logo{width:56px;height:56px;border-radius:14px;margin:0 auto 10px;display:block}
+    .uinst-title{font-size:17px;font-weight:800;color:var(--text,#241D31)}
+    .uinst-phase{font-size:13px;color:var(--accent,#714B67);font-weight:700;margin-top:5px;min-height:20px}
+    .uinst-ring{width:42px;height:42px;margin:12px auto 4px;border-radius:50%;
+        border:4px solid rgba(113,75,103,.16);border-top-color:var(--accent,#714B67);animation:uinstSpin .85s linear infinite}
+    @keyframes uinstSpin{to{transform:rotate(360deg)}}
+    .uinst-steps{text-align:right;margin:14px 2px 2px;display:flex;flex-direction:column;gap:9px}
+    .uinst-step{display:flex;align-items:center;gap:10px;font-size:12.8px;color:var(--text-muted,#8B86A0);transition:color .3s;line-height:1.6}
+    .uinst-step .ic{width:21px;height:21px;border-radius:50%;border:2px solid var(--border,#D9D5E5);flex-shrink:0;position:relative;background:var(--card,#fff);transition:all .3s}
+    .uinst-step.is-active{color:var(--text,#241D31);font-weight:700}
+    .uinst-step.is-active .ic{border-color:rgba(113,75,103,.25);border-top-color:var(--accent,#714B67);animation:uinstSpin .85s linear infinite}
+    .uinst-step.is-done{color:var(--success,#0E8A5F)}
+    .uinst-step.is-done .ic{border-color:var(--success,#0E8A5F);background:var(--success,#0E8A5F);animation:none}
+    .uinst-step.is-done .ic::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+    .uinst-note{font-size:11.3px;color:#8B5E2F;background:rgba(199,126,31,.09);border:1px dashed rgba(199,126,31,.45);
+        border-radius:10px;padding:8px 12px;margin-top:13px;text-align:right;line-height:1.8}
+    .uinst-late{font-size:11.3px;color:#34669C;background:rgba(52,102,156,.08);border:1px dashed rgba(52,102,156,.4);
+        border-radius:10px;padding:8px 12px;margin-top:8px;text-align:right;line-height:1.8;display:none}
+    .uinst-foot{font-size:10.5px;color:var(--text-muted,#8B86A0);margin-top:12px;opacity:.75}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upd-wrap">
+
+    {# ═══ الترويسة ═══ #}
+    <div class="upd-hero">
+        <img src="{{ url_for('static', filename='img/logo-silsal-mark.svg') }}" alt="Silsal">
+        <div style="flex:1;min-width:220px;">
+            <div style="font-weight:800;font-size:15px;">التحديثات — Silsal 7</div>
+            <div style="font-size:11.5px;opacity:.85;margin-top:3px;">فحص تلقائي على الإنترنت • تنزيل داخل البرنامج • تثبيت تلقائي عند إعادة التشغيل — بياناتك في مجلد instance محمية ولا تُمس أبداً</div>
+        </div>
+        <span class="upd-ver-pill">الإصدار الحالي {{ snap.app_version }}</span>
+    </div>
+
+    {% if snap.installed_recently %}
+    <div class="alert alert-success" style="margin-bottom:14px;">
+        <i class="fas fa-circle-check"></i>
+        تم تحديث النظام بنجاح إلى الإصدار <b>{{ snap.installed_version }}</b> — كل شيء يعمل بكفاءة.
+    </div>
+    {% endif %}
+
+    {# ═══ 1) الفحص ═══ #}
+    <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-magnifying-glass"></i> حالة الفحص</div></div>
+        <div class="card-body" style="padding:16px 20px;">
+            <div class="upd-row">
+                <div style="flex:1;min-width:200px;font-size:13px;">
+                    {% if snap.demo %}
+                    <b style="color:var(--warning);">وضع التجربة مفعّل</b> — إشعار وهمي لمعاينة الشكل بدون إنترنت.
+                    {% elif not snap.configured %}
+                    {% if current_user.role == 'developer' %}
+                    <b>لم يتم ربط التحديث بعد.</b> الصق رابط ملف التحديث من GitHub في خانة الإعدادات بالأسفل لتفعيل الفحص التلقائي.
+                    {% else %}
+                    <b>لم يتم ربط التحديث بعد.</b> يقوم مطوّر النظام بربط رابط التحديث من حسابه الخاص — الفحص يعمل تلقائياً فور الربط.
+                    {% endif %}
+                    {% else %}
+                    آخر فحص: <b>{{ snap.last_check_str }}</b> — الفحص يجري تلقائياً كل {{ snap.interval_min }} دقيقة وأول ما الجهاز يوصل بالإنترنت.
+                    {% endif %}
+                </div>
+                <form method="post" action="{{ url_for('system_update_check') }}" style="flex-shrink:0;">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-rotate"></i> فحص الآن</button>
+                </form>
+            </div>
+            {% if snap.last_error %}
+            <div class="alert alert-warning" style="margin:12px 0 0;"><i class="fas fa-triangle-exclamation"></i> {{ snap.last_error }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ═══ 2) جاهز للتثبيت ═══ #}
+    {% if snap.pending_install %}
+    <div class="card" style="margin-bottom:16px;border:1px solid rgba(14,138,95,.35);">
+        <div class="card-header" style="background:rgba(14,138,95,.06);"><div class="card-title"><i class="fas fa-circle-check" style="color:var(--success);"></i> التحديث جاهز للتثبيت</div></div>
+        <div class="card-body" style="padding:16px 20px;">
+            <div style="font-size:13.5px;line-height:2;">
+                تم تنزيل الإصدار <b style="color:var(--success);">{{ snap.ready_version }}</b>
+                {% if snap.zip_size_str %} ({{ snap.zip_size_str }}){% endif %} والتحقق من سلامته بنجاح.
+                <br><b>بمجرد إعادة تشغيل البرنامج سيُثبَّت تلقائياً</b> — لا تحتاج لأي خطوة إضافية، وبياناتك لن تُمس.
+            </div>
+            <div class="upd-row" style="margin-top:12px;">
+                <form method="post" action="{{ url_for('system_update_install') }}" id="uinstForm">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-power-off"></i> تثبيت الآن وإعادة التشغيل</button>
+                </form>
+                <span style="font-size:11.5px;color:var(--text-muted);">أو أغلق وافتح البرنامج متى شئت — التثبيت يتم تلقائياً</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ═══ 3) جارٍ التنزيل ═══ #}
+    {% if snap.download.phase == 'downloading' %}
+    <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-spinner fa-spin"></i> جارٍ تنزيل التحديث (الإصدار {{ snap.download.version }})</div></div>
+        <div class="card-body" style="padding:16px 20px;">
+            <div class="upd-progress"><div id="updBar" style="width:{{ snap.download.percent }}%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);">
+                <span>يمكنك متابعة عملك بشكل طبيعي أثناء التنزيل</span>
+                <span id="updPct">{{ snap.download.percent }}%</span>
+            </div>
+        </div>
+    </div>
+    {% elif snap.download.phase == 'error' %}
+    <div class="alert alert-error" style="margin-bottom:14px;">
+        <i class="fas fa-times-circle"></i> فشل التنزيل: {{ snap.download.error }}
+        <span style="display:block;font-size:11.5px;margin-top:4px;">اضغط «تنزيل التحديث» مرة أخرى لإعادة المحاولة — لن يتأثر النظام بشيء.</span>
+    </div>
+    {% endif %}
+
+    {# ═══ 4) تحديث متاح للتنزيل ═══ #}
+    {% if snap.latest and snap.update_available and not snap.pending_install %}
+    <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-rocket"></i> يوجد إصدار مختلف عن نسختك — جاهز للتحديث</div></div>
+        <div class="card-body" style="padding:16px 20px;">
+            <div class="upd-row">
+                <span class="upd-ver-pill" style="background:var(--accent-soft);border-color:var(--accent);color:var(--accent);">الإصدار {{ snap.latest.version }}</span>
+                {% if snap.latest.date %}<span style="font-size:12px;color:var(--text-muted);">{{ snap.latest.date }}</span>{% endif %}
+            </div>
+            {% if snap.latest.notes %}
+            <div style="margin-top:10px;font-size:13px;line-height:1.9;color:var(--text);">{{ snap.latest.notes }}</div>
+            {% endif %}
+            <div class="upd-row" style="margin-top:14px;">
+                <form method="post" action="{{ url_for('system_update_download') }}">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-download"></i> تنزيل التحديث</button>
+                </form>
+                <span style="font-size:11.5px;color:var(--text-muted);">يُنزَّل داخل البرنامج مع شريط تقدم، ثم يُثبَّت تلقائياً عند إعادة التشغيل</span>
+            </div>
+        </div>
+    </div>
+    {% elif snap.configured and not snap.update_available and not snap.pending_install and not snap.demo and snap.download.phase == 'idle' and not snap.last_error %}
+    <div class="alert alert-success" style="margin-bottom:14px;">
+        <i class="fas fa-check-circle"></i> إصدارك مطابق تماماً للإصدار المنشور على GitHub — النسخة محدّثة.
+    </div>
+    {% endif %}
+
+    {# ═══ 5) الإعدادات — تظهر لمطوّر النظام فقط (يوزر developer) ═══ #}
+    {% if current_user.role == 'developer' %}
+    <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title"><i class="fas fa-link"></i> رابط ملف التحديث (يُضبط مرة واحدة فقط)</div></div>
+        <div class="card-body" style="padding:16px 20px;">
+            <form method="post" action="{{ url_for('system_update_config') }}">
+                <label style="font-size:12.5px;font-weight:700;display:block;margin-bottom:6px;">رابط version.json من GitHub:</label>
+                <input type="text" name="manifest_url" value="{{ snap.manifest_url }}" class="form-control"
+                       placeholder="https://raw.githubusercontent.com/اسم-المستخدم/Silsal-Updates/main/version.json"
+                       style="direction:ltr;text-align:left;font-size:12px;margin-bottom:10px;">
+                <div class="upd-row">
+                    <div>
+                        <label style="font-size:12.5px;font-weight:700;display:block;margin-bottom:6px;">كل كم دقيقة يعيد الفحص؟</label>
+                        <input type="number" name="interval_min" value="{{ snap.interval_min }}" min="5" max="720" class="form-control" style="width:110px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="align-self:flex-end;"><i class="fas fa-floppy-disk"></i> حفظ الإعدادات</button>
+                </div>
+            </form>
+            <div class="upd-note">
+                <b style="color:var(--text);">ملاحظات مهمة:</b><br>
+                • الرابط <b>ثابت لا يتغير أبداً</b> — عند كل إصدار جديد تعدّل محتوى ملف version.json فقط (راجع ملف الدليل «طريقة-التحديث-التلقائي-GitHub.txt»).
+                <br>• الفحص قراءة فقط لملف نصي صغير — لا تخرج أي بيانات من جهازك، وعند غياب الإنترنت يعمل البرنامج كالمعتاد تماماً.
+                <br>• مجلد <code>instance</code> (قاعدة البيانات والإعدادات والباك أب) محمي بالكامل أثناء أي تحديث، ويُحفظ باك أب للنسخة السابقة تلقائياً.
+            </div>
+            <div class="upd-row" style="margin-top:12px;">
+                {% if snap.demo %}
+                <form method="post" action="{{ url_for('system_update_config') }}">
+                    <input type="hidden" name="demo" value="0">
+                    <button type="submit" class="btn btn-outline"><i class="fas fa-stop"></i> إيقاف وضع التجربة</button>
+                </form>
+                {% else %}
+                <form method="post" action="{{ url_for('system_update_config') }}">
+                    <input type="hidden" name="demo" value="1">
+                    <button type="submit" class="btn btn-outline"><i class="fas fa-flask"></i> تجربة شكل الإشعار (وضع تجربة)</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}{# نهاية قسم الإعدادات — مطوّر النظام فقط #}
+
+</div>
+
+<script>
+(function(){
+    var phase = '{{ snap.download.phase }}';
+    if(phase !== 'downloading') return;
+    var bar = document.getElementById('updBar'), pct = document.getElementById('updPct');
+    var iv = setInterval(function(){
+        fetch('{{ url_for("system_update_status") }}')
+        .then(function(r){ return r.json(); })
+        .then(function(s){
+            if(!s || !s.download) return;
+            var d = s.download;
+            if(d.phase === 'downloading'){
+                if(bar) bar.style.width = (d.percent || 0) + '%';
+                if(pct) pct.textContent = (d.percent || 0) + '%';
+            } else {
+                clearInterval(iv);
+                location.reload();
+            }
+        }).catch(function(){});
+    }, 2000);
+})();
+</script>
+
+{# ═══════════ شاشة انتظار تثبيت التحديث — تبقى ظاهرة حتى عودة السيرفر ثم ترجّع المستخدم تلقائياً ═══════════ #}
+<div id="uinstOverlay">
+    <div class="uinst-card">
+        <img class="uinst-logo" src="{{ url_for('static', filename='img/logo-silsal-mark.svg') }}" alt="">
+        <div class="uinst-title">جاري تحديث النظام{% if snap.ready_version %} إلى الإصدار {{ snap.ready_version }}{% endif %}</div>
+        <div class="uinst-phase" id="uinstPhase">جاري تجهيز التحديث…</div>
+        <div class="uinst-ring"></div>
+        <div class="uinst-steps">
+            <div class="uinst-step" id="us0"><span class="ic"></span><span>تجهيز التحديث وتأكيد الحزمة المُنزّلة</span></div>
+            <div class="uinst-step" id="us1"><span class="ic"></span><span>إغلاق سيرفر النظام بأمان</span></div>
+            <div class="uinst-step" id="us2"><span class="ic"></span><span>تثبيت الإصدار الجديد — بياناتك محمية بالكامل</span></div>
+            <div class="uinst-step" id="us3"><span class="ic"></span><span>إعادة تشغيل النظام والعودة تلقائياً</span></div>
+        </div>
+        <div class="uinst-note">لا تغلق هذه الصفحة ولا تُطفئ الجهاز حتى يكتمل التحديث — سيتم إرجاعك تلقائياً إلى النظام.</div>
+        <div class="uinst-late" id="uinstLate"></div>
+        <div class="uinst-foot">سلسل 7 — نظام التحديث التلقائي</div>
+    </div>
+</div>
+<script>
+(function(){
+    var form = document.getElementById('uinstForm');
+    if(!form) return;
+    var ov = document.getElementById('uinstOverlay'),
+        ph = document.getElementById('uinstPhase'),
+        late = document.getElementById('uinstLate'),
+        steps = [document.getElementById('us0'), document.getElementById('us1'),
+                 document.getElementById('us2'), document.getElementById('us3')];
+    function stepSet(i, st){ var el = steps[i]; if(!el) return;
+        el.classList.remove('is-active','is-done'); if(st) el.classList.add('is-' + st); }
+    function say(t){ ph.textContent = t; }
+    function showLate(t){ late.textContent = t; late.style.display = t ? 'block' : 'none'; }
+
+    var watching = false, finishedFlag = false;
+    function finished(){
+        if(finishedFlag) return; finishedFlag = true;
+        stepSet(2,'done'); stepSet(3,'active');
+        say('اكتمل التحديث بنجاح — جاري فتح النظام…');
+        setTimeout(function(){ window.location.replace('/'); }, 1200);
+    }
+    /* ننتظر توقف السيرفر (أول فشل اتصال) ثم رجوعه (أول نجاح) — ثم نرجّع المستخدم للنظام */
+    function watchRestart(){
+        if(watching || finishedFlag) return; watching = true;
+        var sawDown = false, okStreak = 0, t0 = Date.now();
+        var iv = setInterval(function(){
+            var el = Date.now() - t0;
+            if(el > 45000 && el <= 47000) showLate('قد يستغرق التثبيت وقتاً أطول قليلاً على بعض الأجهزة — لا تقلق، العملية تجري في الخلفية.');
+            if(el > 100000 && el <= 102000) showLate('إذا استمرت هذه الشاشة وقتاً طويلاً جداً: أغلق الصفحة وافتح البرنامج من جديد — التثبيت يُكمل تلقائياً ونسختك وبياناتك سليمة.');
+            fetch('/api/desktop/ping', {cache:'no-store'})
+            .then(function(){ okStreak++; if(sawDown || okStreak >= 8){ clearInterval(iv); finished(); } })
+            .catch(function(){
+                okStreak = 0;
+                if(!sawDown){ sawDown = true; stepSet(1,'done'); stepSet(2,'active');
+                    say('جاري تثبيت الإصدار الجديد — بياناتك محمية بالكامل…'); }
+            });
+        }, 1000);
+    }
+
+    var busy = false;
+    form.addEventListener('submit', function(ev){
+        ev.preventDefault();
+        if(busy) return; busy = true;
+        if(!confirm('سيتم إغلاق النظام الآن وتثبيت التحديث ثم إعادة فتحه تلقائياً خلال لحظات.\nالأجهزة الأخرى المتصلة عبر الشبكة ستنقطع مؤقتاً حتى اكتمال التثبيت.\n\nهل تريد المتابعة؟')){ busy = false; return; }
+        ov.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        stepSet(0,'active'); say('جاري تجهيز التحديث…');
+        /* مهلة أمان: لو تأخر الرد لأي سبب نبدأ المراقبة تلقائياً */
+        setTimeout(function(){ watchRestart(); }, 9000);
+        fetch(form.action, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'X-Requested-With': 'fetch'},
+            body: new FormData(form)
+        }).then(function(r){
+            var ct = (r.headers.get('content-type') || '');
+            if(r.redirected || ct.indexOf('text/html') !== -1){
+                /* مثلاً تعذّر التثبيت التلقائي — نعرض رسالة النظام في صفحة التحديثات */
+                window.location.href = r.url || form.action; return;
+            }
+            return r.json().then(function(j){
+                if(j && j.ok){
+                    stepSet(0,'done'); stepSet(1,'active');
+                    say('جاري إغلاق النظام لتثبيت التحديث…');
+                    watchRestart();
+                } else {
+                    window.location.href = r.url || form.action;
+                }
+            });
+        }).catch(function(){
+            /* السيرفر أُغلق فوراً — التثبيت جارٍ بالخلفية */
+            stepSet(0,'done');
+            watchRestart();
+        });
+    });
+})();
+</script>
+{% endblock %}
