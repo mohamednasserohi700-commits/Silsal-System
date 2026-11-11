@@ -1,0 +1,17 @@
+{
+ "last_check": 1794381191.3586726,
+ "last_error": "لا يوجد اتصال بالإنترنت الآن — سيُعاد الفحص تلقائياً بدون أي تأثير على البرنامج",
+ "latest": null,
+ "dismissed_version": "",
+ "download": {
+  "phase": "idle",
+  "percent": 0,
+  "error": "",
+  "version": "",
+  "file": ""
+ },
+ "pending_install": null,
+ "installed_version": "",
+ "installed_at": 0,
+ "installed_seen": true
+}

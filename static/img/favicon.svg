@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Silsal">
+  <defs>
+    <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9A6B8C"/>
+      <stop offset=".55" stop-color="#714B67"/>
+      <stop offset="1" stop-color="#452B40"/>
+    </linearGradient>
+    <linearGradient id="ringMauve" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F5ECF1"/>
+      <stop offset="1" stop-color="#D9C2D2"/>
+    </linearGradient>
+    <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EED9AE"/>
+      <stop offset="1" stop-color="#C08A52"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="118" fill="url(#bgG)"/>
+  <rect x="0" y="0" width="512" height="230" rx="118" fill="#FFFFFF" opacity=".07"/>
+  <rect x="0" y="240" width="512" height="272" rx="118" fill="#000000" opacity=".08"/>
+  <rect x="9" y="9" width="494" height="494" rx="110" fill="none" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="3"/>
+  
+  <g transform="rotate(-18 256 256)">
+    <path d="M 166 196 H 346 A 60 60 0 0 1 346 316 H 166 A 60 60 0 0 1 166 196 Z" fill="none" stroke="url(#ringMauve)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 246 166 V 346 A 60 60 0 0 0 366 346 V 166 A 60 60 0 0 0 246 166 Z" fill="none" stroke="url(#ringGold)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 346 196 A 60 60 0 0 1 346 316" fill="none" stroke="url(#ringMauve)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 366 166 A 60 60 0 0 0 246 166" fill="none" stroke="url(#ringGold)" stroke-width="36" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" width="760" height="220" role="img" aria-label="Silsal">
+  <defs>
+    <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9A6B8C"/>
+      <stop offset=".55" stop-color="#714B67"/>
+      <stop offset="1" stop-color="#452B40"/>
+    </linearGradient>
+    <linearGradient id="ringMauve" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F5ECF1"/>
+      <stop offset="1" stop-color="#D9C2D2"/>
+    </linearGradient>
+    <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EED9AE"/>
+      <stop offset="1" stop-color="#C08A52"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(14 16) scale(0.3672)">
+    <rect x="0" y="0" width="512" height="512" rx="118" fill="url(#bgG)"/>
+    <rect x="0" y="0" width="512" height="230" rx="118" fill="#FFFFFF" opacity=".07"/>
+    <rect x="240" y="0" width="272" height="512" rx="118" fill="#000000" opacity=".08"/>
+    <rect x="9" y="9" width="494" height="494" rx="110" fill="none" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="3"/>
+    
+  <g transform="rotate(-18 256 256)">
+    <path d="M 166 196 H 346 A 60 60 0 0 1 346 316 H 166 A 60 60 0 0 1 166 196 Z" fill="none" stroke="url(#ringMauve)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 246 166 V 346 A 60 60 0 0 0 366 346 V 166 A 60 60 0 0 0 246 166 Z" fill="none" stroke="url(#ringGold)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 346 196 A 60 60 0 0 1 346 316" fill="none" stroke="url(#ringMauve)" stroke-width="36" stroke-linecap="round"/>
+    <path d="M 366 166 A 60 60 0 0 0 246 166" fill="none" stroke="url(#ringGold)" stroke-width="36" stroke-linecap="round"/>
+  </g>
+  </g>
+  <path d="M 302.7 77.2 C 298.4 70.6 292.3 69.0 285.5 69.0 C 275.1 69.0 268.7 76.4 268.7 85.4 C 268.7 95.2 276.4 102.6 287.2 102.6 C 297.9 102.6 305.7 110.0 305.7 119.8 C 305.7 129.7 299.2 136.2 288.9 136.2 C 282.0 136.2 276.0 133.8 271.7 128.0 M 329.7 69.0 V 151.0 M 352.7 69.0 V 151.0 H 386.7 M 444.7 77.2 C 440.4 70.6 434.3 69.0 427.5 69.0 C 417.1 69.0 410.7 76.4 410.7 85.4 C 410.7 95.2 418.4 102.6 429.2 102.6 C 439.9 102.6 447.7 110.0 447.7 119.8 C 447.7 129.7 441.2 136.2 430.9 136.2 C 424.0 136.2 418.0 133.8 413.7 128.0 M 471.7 151.0 L 495.7 69.0 L 519.7 151.0 M 481.2 123.0 H 510.2 M 540.7 69.0 V 151.0 H 574.7" fill="none" stroke="#FFFFFF" stroke-width="13.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
